@@ -8,3 +8,5 @@
 > npx gulp // after adding gulp.series
 
 > npm i -D gulp-sass
+> npm i -D gulp-uglify
+> npm i -D gulp-pug

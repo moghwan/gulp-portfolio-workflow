@@ -2,6 +2,8 @@ const gulp = require('gulp');
 const resizer = require('gulp-image-resize');
 const del = require('del');
 const gulpsass = require('gulp-sass');
+const uglify = require('gulp-uglify');
+const pug = require('gulp-pug');
 
 function images() {
     return gulp.src('images/*.jpg', {since: gulp.lastRun(images)})
@@ -11,27 +13,46 @@ function images() {
             crop: true,
             imageMagick: true,
         }))
-        .pipe(gulp.dest('dist/images'))
+        .pipe(gulp.dest('_dist/images'))
 }
 
 function clean() {
-    return del('dist')
+    return del('_dist')
 }
 
 function sass() {
     return gulp.src('css/*.scss', {sourcemaps: true})
         .pipe(gulpsass())
-        .pipe(gulp.dest('dist/css', {sourcemaps: '.'}))
+        .pipe(gulp.dest('_dist/css', {sourcemaps: '.'}))
+}
+
+function minifyjs() {
+    return gulp.src('js/*.js')
+        .pipe(uglify())
+        .pipe(gulp.dest('_dist/js'))
+}
+
+function hpug() {
+    return gulp.src('index.pug')
+        .pipe(pug())
+        .pipe(gulp.dest('_dist'))
 }
 
 function watcher() {
     gulp.watch('images/*.jpg', {ignoreInitial: false}, images)
 }
 
+function watcherpug() {
+    gulp.watch('index.pug', { ignoreInitial: false }, hpug)
+}
+
 module.exports = {
     // images,
     // clean,
     // sass: sass,
-    watch: gulp.series(clean, watcher),
-    default: gulp.series(clean, gulp.parallel(images, sass))
+    // minifyjs,
+    // hpug,
+    watch: watcher,
+    watchpug: watcherpug,
+    default: gulp.series(clean, gulp.parallel(images, sass, minifyjs, hpug))
 }
